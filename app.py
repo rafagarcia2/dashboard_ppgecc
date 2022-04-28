@@ -6,9 +6,11 @@ import streamlit as st
 # função para selecionar a quantidade de linhas do dataframe
 def mostra_qntd_linhas(dataframe):
 
-    qntd_linhas = st.sidebar.slider('Selecione a quantidade de linhas que deseja mostrar na tabela', min_value = 1, max_value = len(dataframe), step = 1)
+    max_linhas = min(100, len(dataframe))
+    qntd_linhas = st.sidebar.slider("Selecione a quantidade de linhas que deseja mostrar na tabela", min_value = 10, max_value = max_linhas, step = 10)
 
-    st.write(dataframe.head(qntd_linhas).style.format(subset = ['Valor'], formatter="{:.2f}"))
+    df_show = dataframe[["id", "title", "publication_date"]]
+    st.write(df_show.head(qntd_linhas))
 
 # função que cria o gráfico
 def plot_artichles_per_year(dataframe, year=None):
@@ -55,11 +57,17 @@ df_unique_papers = df_papers.drop_duplicates(["id"])
 number_citations = df_unique_papers.citation_num.sum()
 number_publications = df_unique_papers[~df_unique_papers.publisher.isna()].shape[0]
 
+col1, col2, col3, col4 = st.columns(4)
+
 # show indicators
-st.metric(label="Artigos", value=number_articles)
-st.metric(label="Professores", value=number_authors)
-st.metric(label="Publicações", value=number_publications)
-st.metric(label="Citações", value=number_citations)
+with col1:
+    st.metric(label="Artigos", value=number_articles)
+with col2:
+    st.metric(label="Professores", value=number_authors)
+with col3:
+    st.metric(label="Publicações", value=number_publications)
+with col4:
+    st.metric(label="Citações", value=number_citations)
 
 # Articles per year
 df_unique_papers.publication_date = pd.to_datetime(df_unique_papers.publication_date)
@@ -86,9 +94,13 @@ if checkbox_mostrar_tabela:
     if year != 'Todos':
         df_year = df_unique_papers.query('publication_year == @year')
         figura_articles = plot_artichles_per_year(df_year)
+        st.pyplot(figura_articles)
+        mostra_qntd_linhas(df_year)
     else:
         figura_articles = plot_artichles_per_year(df_unique_papers)
-    st.pyplot(figura_articles)
+        st.pyplot(figura_articles)
+        mostra_qntd_linhas(df_unique_papers)
+
 
 # filtro para o gráfico
 # st.sidebar.markdown('## Filtro para o gráfico')
