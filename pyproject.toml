@@ -2,7 +2,7 @@
 name = "dashboard_ppgecc"
 version = "0.1.0"
 description = ""
-authors = ["diego medeiros <diego.medeiros@geowellex.com>"]
+authors = ["diego medeiros <diego25rn@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = ">=3.10.2,<3.11"

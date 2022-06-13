@@ -1,53 +1,20 @@
-from turtle import bgcolor, color
 import pandas as pd
 import streamlit as st
 from streamlit_agraph import agraph, Node, Edge, Config
 import plotly.graph_objects as go
 from plotly.graph_objects import scatterpolargl
 from config_colors import colors
+from login_template import check_password
 
 # set the page layout to full screen
 st.set_page_config(
     layout="wide",
 )
 
-
-def check_password():
-    """Returns `True` if the user had a correct password."""
-
-    def password_entered():
-        """Checks whether a password entered by the user is correct."""
-        if (st.session_state["username"] in st.secrets["passwords"]) and (
-            st.session_state["password"]
-            == st.secrets["passwords"][st.session_state["username"]]
-        ):
-            st.session_state["password_correct"] = True
-            del st.session_state["password"]  # don't store username + password
-            # del st.session_state["username"]
-        else:
-            st.session_state["password_correct"] = False
-
-    if "password_correct" not in st.session_state:
-        # First run, show inputs for username + password.
-        st.text_input("Usuário", key="username")
-        st.text_input("Senha", type="password", key="password")
-        st.button("Entrar", on_click=password_entered)
-        return False
-    elif not st.session_state["password_correct"]:
-        # Password not correct, show input + error.
-        st.text_input("Usuário", key="username")
-        st.text_input("Senha", type="password", key="password")
-        st.button("Entrar", on_click=password_entered)
-        st.error("User not known or password incorrect")
-        return False
-    else:
-        # Password correct.
-        return True
-
-
 if check_password():
 
-    df = pd.read_csv("data/graph_csv.csv")
+    df = pd.read_csv("data/graph_csv_2.csv")
+    # print(df)
     st.markdown(
         "<h1 style='text-align: center; color: #0F2D9A;font-size: 14 px ;'> Bem vindo à sessão de grafos e agrupamentos </h1>",
         unsafe_allow_html=True,
@@ -75,12 +42,16 @@ if check_password():
         # create the node if it has connections in the table
         if size > 0:
             # node id == theme's name
-            nodes.append(Node(id=i, label=i, size=size, color="#4F62EE"))
+            nodes.append(Node(id=i, label=i, size=int(size), color="#4F62EE"))
 
     # link the nodes using the id's
     for i in prof:
         # filter the data without
-        data = df.loc[df.professors == i, :].drop(columns=["professors"]).iloc[0]
+        data = (
+            df.loc[df.professors == i, :]
+            .drop(columns=["professors", "Unnamed: 1"])
+            .iloc[0]
+        )
         # set the source node name as the professor's node id
         source = i
         for j in data.keys():
@@ -91,7 +62,7 @@ if check_password():
                     Edge(
                         source=str(source),
                         target=str(j),
-                        width=data[j],
+                        width=int(data[j]),
                         color="#CAD8F6",
                         type="CURVE_SMOOTH",  # type="STRAIGHT"
                     )
@@ -105,36 +76,41 @@ if check_password():
         onclick="focus",
         nodeHighlightBehavior=False,
         highlightColor="#F31234",  # or "blue"
-        collapsible=True,
+        collapsible=False,
         node={"labelProperty": "label"},
         link={"labelProperty": "label", "renderLabel": True},
         graphviz_layout=None
         # **kwargs e.g. node_size=1000 or node_color="blue"
     )
+
     return_value = agraph(nodes=nodes, edges=edges, config=config)
 
     if len(prof) > 0:
-        df4 = pd.read_csv("data/papers_scopus_subject_normalized.csv")
-        df6 = df4.loc[:, ["subject_areas", "professors", "citation_num", "title"]]
+        df4 = pd.read_csv("data/scopus_professors.csv")
+        df6 = df4.loc[
+            :, ["subject_areas", "professors", "citation_num", "title", "year"]
+        ]
         df6 = pd.get_dummies(
             data=df6, columns=["subject_areas"], prefix="", prefix_sep=""
         )
         df6["subject_areas"] = df4["subject_areas"]
         df6 = df6.groupby(
-            by=["professors", "title", "subject_areas"], as_index=False
+            by=["professors", "title", "subject_areas", "year"], as_index=False
         ).sum()
         # create the graph
         df7 = df6.loc[df6["professors"].isin(prof), :]
+        df7["year"] = df7["year"].astype(int)
+        df7 = df7.sort_values(by="year", ascending=True).reset_index()
         fig = go.Figure()
         color_number = 0
         for sub in df7["subject_areas"].unique():
             local_df = df7.loc[df7[sub] > 0, :]
-            # print(colors[color_number])
+            local_df["year"] = local_df["year"].astype(str)
+            print(sub)
             fig.add_trace(
                 go.Scatterpolargl(
-                    r=local_df[sub] * local_df["citation_num"],
+                    r=local_df["year"].sort_values(),
                     theta=local_df["subject_areas"],
-                    name=str(sub),
                     marker=dict(
                         size=local_df["citation_num"], color=colors[color_number]
                     ),
