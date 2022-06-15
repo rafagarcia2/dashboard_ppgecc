@@ -9,6 +9,7 @@ import graph_view
 import cluster_view
 from menu_bar import menu
 from app import show_principal
+import timeSeries_view
 
 # set the page layout to full screen
 st.set_page_config(
@@ -22,7 +23,14 @@ if check_password():
         show_principal()
     if st.session_state.page == "graph":
         prof = graph_view.plot_graph()
-
-    # if len(prof) > 0:
-    #     fig = cluster_view.cluster_plot(prof)
-    #     st.plotly_chart(fig)
+    if st.session_state.page == "time":
+        fig = timeSeries_view.plot_timeSeries_scopus()
+        st.plotly_chart(fig)
+    if st.session_state.page == "cluster":
+        df4 = pd.read_csv("data/scopus_professors.csv")
+        prof = st.multiselect(
+            label="Professor a visualizar:", options=df4["professors"].unique()
+        )
+        if len(prof) > 0:
+            fig = cluster_view.cluster_plot(data=df4, prof=prof)
+            st.plotly_chart(fig)

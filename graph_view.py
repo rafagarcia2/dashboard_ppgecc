@@ -63,7 +63,7 @@ def plot_graph():
     # set the graphs view config to the agraph component
     config = Config(
         width=1400,
-        height=800,
+        height=500,
         directed=False,
         onclick="focus",
         nodeHighlightBehavior=False,

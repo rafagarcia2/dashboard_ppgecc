@@ -1,13 +1,14 @@
 import pandas as pd
 import plotly.graph_objects as go
 from config_colors import colors
+import streamlit as st
 
 
-def cluster_plot(prof):
-    df4 = pd.read_csv("data/scopus_professors.csv")
-    df6 = df4.loc[:, ["subject_areas", "professors", "citation_num", "title", "year"]]
+def cluster_plot(data, prof):
+
+    df6 = data.loc[:, ["subject_areas", "professors", "citation_num", "title", "year"]]
     df6 = pd.get_dummies(data=df6, columns=["subject_areas"], prefix="", prefix_sep="")
-    df6["subject_areas"] = df4["subject_areas"]
+    df6["subject_areas"] = data["subject_areas"]
     df6 = df6.groupby(
         by=["professors", "title", "subject_areas", "year"], as_index=False
     ).sum()

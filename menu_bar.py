@@ -15,11 +15,11 @@ def menu():
     if st.sidebar.button(label="Home", key="home"):
         set_page("home")
     if st.sidebar.button(label="Clustering", key="cluster"):
-        set_page("home")
+        set_page("cluster")
     if st.sidebar.button(label="Net analisys", key="graph"):
         set_page("graph")
     if st.sidebar.button(label="Time analysis", key="time"):
-        set_page("graph")
+        set_page("time")
 
 
 def set_page(page):

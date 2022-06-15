@@ -5,9 +5,9 @@ from plotly.subplots import make_subplots
 from config_colors import colors
 
 
-def plot_timeSeries_scopus(areas):
+def plot_timeSeries_scopus(areas=None):
     data = pd.read_csv("data/scopus_professors.csv")
-    df = pd.DataFrame(data.loc[df["subject_areas"].isin(areas), :])
+    # df = pd.DataFrame(data.loc[df["subject_areas"].isin(areas), :])
     df = data.loc[
         :, ["subject_areas", "year", "title"]  # "professors", "citation_num", "title",
     ]
@@ -113,8 +113,8 @@ def plot_timeSeries_scopus(areas):
         xaxis2_showticklabels=True,
         plot_bgcolor="rgba(0,0,0,0)",
         autosize=False,
-        width=1200,
-        height=900,
+        width=1400,
+        height=700,
         xaxis=dict(
             showspikes=True,
             spikemode="across",
