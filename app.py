@@ -22,6 +22,7 @@ def mostra_qntd_linhas(dataframe: pd.DataFrame):
     df_show = dataframe[["id", "title", "publication_date"]]
     st.write(df_show.head(qntd_linhas))
 
+
 def plot_artichles_per_year(dataframe, year=None):
     """Responsável por apresentar o gráfico de artigos por ano.
 
@@ -62,57 +63,60 @@ def plot_articles_per_conference(dataframe):
     return fig
 
 
-# importando os dados
-df_papers = pd.read_csv("data/papers_scopus.csv")
+def show_principal():
+    # importando os dados
+    df_papers = pd.read_csv("data/papers_scopus.csv")
 
-st.title("Análise da Produção Acadêmica do PPgEEC\n")
-st.write(
-    "Iremos desenvolver uma plataforma capaz de visualizar os dados de produção " +
-    "acadêmica desenvolvida pelo Programa de Pós-graduação em Engenharia Elétrica (PPgECC)."
-)
+    st.title("Análise da Produção Acadêmica do PPgEEC\n")
+    st.write(
+        "Iremos desenvolver uma plataforma capaz de visualizar os dados de produção "
+        + "acadêmica desenvolvida pelo Programa de Pós-graduação em Engenharia Elétrica (PPgECC)."
+    )
 
-# indicators
-number_articles = df_papers.id.nunique()
-number_authors = df_papers.professors.nunique()
+    # indicators
+    number_articles = df_papers.id.nunique()
+    number_authors = df_papers.professors.nunique()
 
-# get unique values
-df_unique_papers = df_papers.drop_duplicates(["id"])
+    # get unique values
+    df_unique_papers = df_papers.drop_duplicates(["id"])
 
-number_citations = int(df_unique_papers.citation_num.sum())
-number_publications = df_unique_papers[~df_unique_papers.publisher.isna()].shape[0]
+    number_citations = int(df_unique_papers.citation_num.sum())
+    number_publications = df_unique_papers[~df_unique_papers.publisher.isna()].shape[0]
 
-col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4 = st.columns(4)
 
-# show indicators
-with col1:
-    st.metric(label="Artigos", value=number_articles)
-with col2:
-    st.metric(label="Professores", value=number_authors)
-with col3:
-    st.metric(label="Publicações", value=number_publications)
-with col4:
-    st.metric(label="Citações", value=number_citations)
+    # show indicators
+    with col1:
+        st.metric(label="Artigos", value=number_articles)
+    with col2:
+        st.metric(label="Professores", value=number_authors)
+    with col3:
+        st.metric(label="Publicações", value=number_publications)
+    with col4:
+        st.metric(label="Citações", value=number_citations)
 
-# Articles per year
-df_unique_papers.publication_date = pd.to_datetime(df_unique_papers.publication_date)
-df_unique_papers["publication_year"] = df_unique_papers.publication_date.dt.year
+    # Articles per year
+    df_unique_papers.publication_date = pd.to_datetime(
+        df_unique_papers.publication_date
+    )
+    df_unique_papers["publication_year"] = df_unique_papers.publication_date.dt.year
 
-figura = plot_articles_per_conference(df_unique_papers)
-st.pyplot(figura)
+    figura = plot_articles_per_conference(df_unique_papers)
+    st.pyplot(figura)
 
-st.sidebar.markdown("## Filtro para a tabela")
+    st.sidebar.markdown("## Filtro para a tabela")
 
-years = list(df_unique_papers["publication_year"].unique())
-years.insert(0, "Todos")
+    years = list(df_unique_papers["publication_year"].unique())
+    years.insert(0, "Todos")
 
-year = st.sidebar.selectbox("Selecione um ano para visualizar", options=years)
+    year = st.sidebar.selectbox("Selecione um ano para visualizar", options=years)
 
-if year != "Todos":
-    df_year = df_unique_papers.query("publication_year == @year")
-    figura_articles = plot_artichles_per_year(df_year)
-    st.pyplot(figura_articles)
-    mostra_qntd_linhas(df_year)
-else:
-    figura_articles = plot_artichles_per_year(df_unique_papers)
-    st.pyplot(figura_articles)
-    mostra_qntd_linhas(df_unique_papers)
+    if year != "Todos":
+        df_year = df_unique_papers.query("publication_year == @year")
+        figura_articles = plot_artichles_per_year(df_year)
+        st.pyplot(figura_articles)
+        mostra_qntd_linhas(df_year)
+    else:
+        figura_articles = plot_artichles_per_year(df_unique_papers)
+        st.pyplot(figura_articles)
+        mostra_qntd_linhas(df_unique_papers)

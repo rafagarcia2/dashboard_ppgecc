@@ -12,7 +12,16 @@ def menu():
         unsafe_allow_html=True,
     )
     st.sidebar.markdown("---")
-    st.sidebar.button(label="Home")
-    st.sidebar.button(label="Clustering")
-    st.sidebar.button(label="Net analisys")
-    st.sidebar.button(label="Time analysis")
+    if st.sidebar.button(label="Home", key="home"):
+        set_page("home")
+    if st.sidebar.button(label="Clustering", key="cluster"):
+        set_page("home")
+    if st.sidebar.button(label="Net analisys", key="graph"):
+        set_page("graph")
+    if st.sidebar.button(label="Time analysis", key="time"):
+        set_page("graph")
+
+
+def set_page(page):
+    print(page)
+    st.session_state["page"] = page
