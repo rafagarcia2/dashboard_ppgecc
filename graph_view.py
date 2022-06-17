@@ -5,8 +5,9 @@ from config_colors import colors
 
 
 def plot_graph():
-    df = pd.read_csv("data/graph_csv_2.csv")
+    df4 = pd.read_csv("data/scopus_professors.csv")
     # print(df)
+
     st.markdown(
         "<h1 style='text-align: center; color: #0F2D9A;font-size: 14 px ;'> Bem vindo à sessão de grafos e agrupamentos </h1>",
         unsafe_allow_html=True,
@@ -14,10 +15,17 @@ def plot_graph():
     nodes = []
     edges = []
     # multiselect the professors in the list
-    prof = st.multiselect(label="Professor a visualizar:", options=df["professors"])
+    prof = st.multiselect(
+        label="Professor a visualizar:", options=df4["professors"].unique()
+    )
     # filter the data by the professors selected
-    df = pd.DataFrame(df.loc[df["professors"].isin(prof), :])
+    df4 = pd.DataFrame(
+        df4.loc[df4["professors"].isin(prof), ["professors", "subject_areas"]]
+    )
 
+    df = pd.get_dummies(data=df4, columns=["subject_areas"], prefix="", prefix_sep="")
+
+    df = df.groupby(by="professors", as_index=False).sum()
     # create the professor's nodes
     for i in prof:
         # set the node size by row sum without professors columns
@@ -41,7 +49,7 @@ def plot_graph():
         # filter the data without
         data = (
             df.loc[df.professors == i, :]
-            .drop(columns=["professors", "Unnamed: 1"])
+            .drop(columns=["professors"])  # , "Unnamed: 1"
             .iloc[0]
         )
         # set the source node name as the professor's node id
