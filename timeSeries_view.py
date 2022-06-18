@@ -10,7 +10,7 @@ def plot_timeSeries_scopus(areas=None):
     data = pd.read_csv("data/scopus_professors.csv")
     data = data.loc[data["year"] != "['2013', '11', '18']", :]
     st.markdown(
-        "<h1 style='text-align: center; color: #0F2D9F;font-size: 14 px ;'> Bem vindo à sessão de grafos </h1>",
+        "<h1 style='text-align: center; color: #0F2D9F;font-size: 14 px ;'> Bem vindo à sessão de Séries temporais </h1>",
         unsafe_allow_html=True,
     )
     st.markdown(
@@ -29,7 +29,7 @@ def plot_timeSeries_scopus(areas=None):
     }
     field1 = fields[viz_type]
     df = data.loc[
-        :, [str(field1), "year", "abstract"]  # "professors", "citation_num", "title",
+        :, [str(field1), "year", "title"]  # "professors", "citation_num", "title",
     ]
     df = df.sort_values(by="year", ascending=True).reset_index()
     options_time = df["year"].unique()
@@ -52,12 +52,12 @@ def plot_timeSeries_scopus(areas=None):
         df = pd.get_dummies(data=df, columns=[str(field1)], prefix="", prefix_sep="")
         # df["subject_areas"] = data["subject_areas"]
         df = df.groupby(
-            by=["abstract", "year"],
+            by=["title", "year"],
             as_index=False,  # "professors", "title", "subject_areas",
         ).sum()
-        citations = data.loc[:, ["abstract", "citation_num"]]
+        citations = data.loc[:, ["title", "citation_num"]]
         citations = citations.drop_duplicates()
-        df = df.merge(citations, on="abstract", how="left")
+        df = df.merge(citations, on="title", how="left")
         df = df.groupby(
             by=["year"], as_index=False  # "professors", "title", "subject_areas",
         ).sum()
@@ -67,7 +67,7 @@ def plot_timeSeries_scopus(areas=None):
             cols=1,
             shared_xaxes=True,
             subplot_titles=[
-                "temas ao longo dos anos",
+                field1 + " ao longo dos anos",
                 "citações ao longo dos anos",
             ],
         )
