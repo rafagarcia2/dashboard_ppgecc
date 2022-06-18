@@ -100,6 +100,7 @@ def plot_timeSeries_scopus(areas=None):
                     2,
                     1,
                 )
+                del df1
                 color_number = color_number + 1
             except:
                 st.warning("Intervalo de anos inválido para as opções escolhidas")

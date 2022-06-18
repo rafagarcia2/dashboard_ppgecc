@@ -17,7 +17,7 @@ st.set_page_config(
 )
 
 if check_password():
-    print(st.session_state)
+    # print(st.session_state)
     menu()
     if st.session_state.page == "home":
         show_principal()
