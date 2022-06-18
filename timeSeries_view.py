@@ -3,155 +3,152 @@ import plotly.graph_objects as go
 import numpy as np
 from plotly.subplots import make_subplots
 from config_colors import colors
+import streamlit as st
 
 
 def plot_timeSeries_scopus(areas=None):
     data = pd.read_csv("data/scopus_professors.csv")
-    # df = pd.DataFrame(data.loc[df["subject_areas"].isin(areas), :])
+    data = data.loc[data["year"] != "['2013', '11', '18']", :]
+    st.markdown(
+        "<h1 style='text-align: center; color: #0F2D9F;font-size: 14 px ;'> Bem vindo à sessão de grafos </h1>",
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        "<h2 style='text-align: center; color: #000000;font-size: 12 px ;'> Selecione as informações que deseja visualizar </h2>",
+        unsafe_allow_html=True,
+    )
+    options = ["Professores", "Temas"]
+    viz_type = st.selectbox(
+        "Selecione o campo que se deseja visualizar", options=options
+    )
+    fields = {
+        "Professores": "professors",
+        "Papers": "title",
+        "Temas": "subject_areas",
+        "Conferencia": "conference_name",
+    }
+    field1 = fields[viz_type]
     df = data.loc[
-        :, ["subject_areas", "year", "title"]  # "professors", "citation_num", "title",
+        :, [str(field1), "year", "abstract"]  # "professors", "citation_num", "title",
     ]
-    df = pd.get_dummies(data=df, columns=["subject_areas"], prefix="", prefix_sep="")
-    # df["subject_areas"] = data["subject_areas"]
-    df = df.groupby(
-        by=["title", "year"], as_index=False  # "professors", "title", "subject_areas",
-    ).sum()
-    citations = data.loc[:, ["title", "citation_num"]]
-    citations = citations.drop_duplicates()
-    df = df.merge(citations, on="title", how="left")
-    df = df.groupby(
-        by=["year"], as_index=False  # "professors", "title", "subject_areas",
-    ).sum()
-
-    fig = make_subplots(
-        rows=2,
-        cols=1,
-        shared_xaxes=True,
-        subplot_titles=[
-            "subjects on time",
-            "citations on time",
-        ],
-    )
-
-    # df["year"] = df["year"].astype(int)
     df = df.sort_values(by="year", ascending=True).reset_index()
-    fig.add_trace(
-        go.Scatter(
-            x=df["year"],
-            y=df["Electrical and Electronic Engineering"],
-            mode="lines+markers",
-            line=dict(color="rgba(68,53,118,0.5)", width=1),
-            name="Electrical and Electronic Engineering",
-        ),
-        1,
-        1,
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=df["year"],
-            y=df["Instrumentation"],
-            mode="lines+markers",
-            line=dict(color="rgba(35,172,134,0.5)", width=1),
-            name="Instrumentation",
-        ),
-        1,
-        1,
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=df["year"],
-            y=df["Engineering (all)"],
-            mode="lines+markers",
-            line=dict(color="rgba(149,224,42,0.5)", width=1),
-            name="Engineering (all)",
-        ),
-        1,
-        1,
-    )
+    options_time = df["year"].unique()
+    col1, col2 = st.columns(2)
+    with col1:
+        option1 = st.selectbox("Ano de inicio", options=options_time)
+    with col2:
+        option2 = st.selectbox("Ano final", options=options_time)
+    if int(option1) > int(option2):
+        st.warning(
+            "Mantenha o valor final maior que o inicial, ou igual quando valor único."
+        )
+    else:
+        df = df.loc[
+            (df["year"].astype(int) >= int(option1))
+            & (df["year"].astype(int) <= int(option2)),
+            :,  # "professors", "citation_num", "title",
+        ]
+        df = df.sort_values(by="year", ascending=True).reset_index()
+        df = pd.get_dummies(data=df, columns=[str(field1)], prefix="", prefix_sep="")
+        # df["subject_areas"] = data["subject_areas"]
+        df = df.groupby(
+            by=["abstract", "year"],
+            as_index=False,  # "professors", "title", "subject_areas",
+        ).sum()
+        citations = data.loc[:, ["abstract", "citation_num"]]
+        citations = citations.drop_duplicates()
+        df = df.merge(citations, on="abstract", how="left")
+        df = df.groupby(
+            by=["year"], as_index=False  # "professors", "title", "subject_areas",
+        ).sum()
 
-    df1 = df.loc[df["Electrical and Electronic Engineering"] > 0, :]
-    fig.add_trace(
-        go.Bar(
-            x=df["year"],
-            y=df1["citation_num"],
-            name="Electrical and Electronic Engineering",
-            marker=dict(color="rgba(214,238,193,0.5)"),
-        ),
-        2,
-        1,
-    )
-
-    df2 = df.loc[df["Instrumentation"] > 0, :]
-
-    fig.add_trace(
-        go.Bar(
-            x=df["year"],
-            y=df2["citation_num"],
-            name="Instrumentation",
-            marker=dict(color="rgba(141,15,162,0.5)"),
-        ),
-        2,
-        1,
-    )
-
-    df3 = df.loc[df["Engineering (all)"] > 0, :]
-    fig.add_trace(
-        go.Bar(
-            x=df["year"],
-            y=df3["citation_num"],
-            name="Engineering (all)",
-            marker=dict(color="rgba(7,152,228,0.5)"),
-        ),
-        2,
-        1,
-    )
-
-    fig.update_layout(
-        showlegend=True,
-        hovermode="x unified",
-        xaxis_showticklabels=True,
-        xaxis2_showticklabels=True,
-        plot_bgcolor="rgba(0,0,0,0)",
-        autosize=False,
-        width=1400,
-        height=700,
-        xaxis=dict(
-            showspikes=True,
-            spikemode="across",
-            spikesnap="cursor",
-            showgrid=True,
-            autorange=True,
-            showline=True,
-            linewidth=1,
-            linecolor="black",
-            gridcolor="gray",
-            type="linear",
-        ),
-        yaxis=dict(showline=True, linewidth=1, linecolor="black", gridcolor="gray"),
-        xaxis2=dict(
-            showspikes=True,
-            spikemode="across",
-            spikesnap="cursor",
-            showgrid=True,
-            autorange=True,
-            showline=True,
-            linewidth=1,
-            linecolor="black",
-            gridcolor="gray",
-            rangeslider=dict(
+        fig = make_subplots(
+            rows=2,
+            cols=1,
+            shared_xaxes=True,
+            subplot_titles=[
+                "temas ao longo dos anos",
+                "citações ao longo dos anos",
+            ],
+        )
+        prof = st.multiselect(
+            label=str(option1) + " a visualizar:",
+            options=data[field1].dropna().unique(),
+        )
+        color_number = 0
+        for i in prof:
+            try:
+                fig.add_trace(
+                    go.Scatter(
+                        x=df["year"],
+                        y=df[i],
+                        mode="lines+markers",
+                        line=dict(color=colors[color_number], width=1),
+                        name=i,
+                    ),
+                    1,
+                    1,
+                )
+                df1 = df.loc[df[i] > 0, :]
+                fig.add_trace(
+                    go.Bar(
+                        x=df1["year"],
+                        y=df1["citation_num"],
+                        name=i,
+                        marker=dict(color=colors[color_number]),
+                    ),
+                    2,
+                    1,
+                )
+                color_number = color_number + 1
+            except:
+                st.warning("Intervalo de anos inválido para as opções escolhidas")
+        fig.update_layout(
+            showlegend=True,
+            hovermode="x unified",
+            xaxis_showticklabels=True,
+            xaxis2_showticklabels=True,
+            plot_bgcolor="rgba(0,0,0,0)",
+            autosize=False,
+            width=1400,
+            height=800,
+            xaxis=dict(
+                showspikes=True,
+                spikemode="across",
+                spikesnap="cursor",
+                showgrid=True,
                 autorange=True,
+                showline=True,
+                linewidth=1,
+                linecolor="black",
+                gridcolor="gray",
+                type="linear",
             ),
-            type="linear",
-        ),
-        yaxis2=dict(
-            showline=True,
-            linewidth=1,
-            linecolor="black",
-            autorange=True,
-            gridcolor="gray",
-        ),
-    )
-    return fig
+            yaxis=dict(showline=True, linewidth=1, linecolor="black", gridcolor="gray"),
+            xaxis2=dict(
+                showspikes=True,
+                spikemode="across",
+                spikesnap="cursor",
+                showgrid=True,
+                autorange=True,
+                showline=True,
+                linewidth=1,
+                linecolor="black",
+                gridcolor="gray",
+                rangeslider=dict(
+                    autorange=True,
+                ),
+                type="linear",
+            ),
+            yaxis2=dict(
+                showline=True,
+                linewidth=1,
+                linecolor="black",
+                autorange=True,
+                gridcolor="gray",
+            ),
+        )
+        return fig
 
 
 def plot_timeSeries_scival():

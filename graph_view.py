@@ -13,7 +13,7 @@ def plot_graph():
         unsafe_allow_html=True,
     )
     st.markdown(
-        "<h1 style='text-align: center; color: #000000;font-size: 12 px ;'> Selecione as informações que deseja visualizar </h1>",
+        "<h2 style='text-align: center; color: #000000;font-size: 12 px ;'> Selecione as informações que deseja visualizar </h2>",
         unsafe_allow_html=True,
     )
     options = ["Professores", "Papers", "Temas", "Conferencia"]

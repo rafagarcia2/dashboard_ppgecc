@@ -24,13 +24,19 @@ if check_password():
     if st.session_state.page == "graph":
         prof = graph_view.plot_graph()
     if st.session_state.page == "time":
-        fig = timeSeries_view.plot_timeSeries_scopus()
-        st.plotly_chart(fig)
+        try:
+            fig = timeSeries_view.plot_timeSeries_scopus()
+            st.plotly_chart(fig)
+        except:
+            st.warning("Gráfico inválido")
     if st.session_state.page == "cluster":
         df4 = pd.read_csv("data/scopus_professors.csv")
         prof = st.multiselect(
             label="Professor a visualizar:", options=df4["professors"].unique()
         )
         if len(prof) > 0:
-            fig = cluster_view.cluster_plot(data=df4, prof=prof)
-            st.plotly_chart(fig)
+            try:
+                fig = cluster_view.cluster_plot(data=df4, prof=prof)
+                st.plotly_chart(fig)
+            except:
+                st.warning("Gráfico inválido")
