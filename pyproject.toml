@@ -13,6 +13,7 @@ matplotlib = "^3.5.2"
 streamlit = "^1.10.0"
 streamlit-agraph = "^0.0.37"
 plotly = "^5.8.0"
+google-cloud-bigquery = "^3.2.0"
 
 [tool.poetry.dev-dependencies]
 black = {version = "^22.3.0", allow-prereleases = true}

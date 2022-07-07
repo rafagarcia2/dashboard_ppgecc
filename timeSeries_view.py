@@ -55,11 +55,12 @@ def plot_timeSeries_scopus(areas=None):
             by=["title", "year"],
             as_index=False,  # "professors", "title", "subject_areas",
         ).sum()
-        citations = data.loc[:, ["title", "citation_num"]]
+        citations = data.loc[:, [str(field1), "title", "citation_num"]]
         citations = citations.drop_duplicates()
         df = df.merge(citations, on="title", how="left")
         df = df.groupby(
-            by=["year"], as_index=False  # "professors", "title", "subject_areas",
+            by=[str(field1), "year"],
+            as_index=False,  # "professors", "title", "subject_areas",
         ).sum()
 
         fig = make_subplots(
