@@ -61,7 +61,7 @@ def plot_timeSeries_scopus(areas=None):
         df = df.groupby(
             by=[str(field1), "year"],
             as_index=False,  # "professors", "title", "subject_areas",
-        ).sum()
+        ).count()
 
         fig = make_subplots(
             rows=2,
@@ -78,11 +78,12 @@ def plot_timeSeries_scopus(areas=None):
         )
         color_number = 0
         for i in prof:
+            df2 = df.loc[df[field1]==i,:]
             try:
                 fig.add_trace(
                     go.Scatter(
-                        x=df["year"],
-                        y=df[i],
+                        x=df2["year"],
+                        y=df2[i],
                         mode="lines+markers",
                         line=dict(color=colors[color_number], width=1),
                         name=i,
@@ -90,7 +91,7 @@ def plot_timeSeries_scopus(areas=None):
                     1,
                     1,
                 )
-                df1 = df.loc[df[i] > 0, :]
+                df1 = df2.loc[df[i] > 0, :]
                 fig.add_trace(
                     go.Bar(
                         x=df1["year"],
@@ -102,6 +103,7 @@ def plot_timeSeries_scopus(areas=None):
                     1,
                 )
                 del df1
+                del df2
                 color_number = color_number + 1
             except:
                 st.warning("Intervalo de anos inválido para as opções escolhidas")
