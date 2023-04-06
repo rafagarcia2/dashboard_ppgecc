@@ -24,7 +24,9 @@ def cluster_plot(data, prof):
         print(sub)
         fig.add_trace(
             go.Scatterpolargl(
-                r=local_df["year"].sort_values(),
+                r0=min(local_df["year"].sort_values()),
+                r=(local_df["year"].sort_values()),
+                dr=1,
                 theta=local_df["subject_areas"],
                 marker=dict(size=local_df["citation_num"], color=colors[color_number]),
             )
