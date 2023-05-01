@@ -26,7 +26,7 @@ def loading_data():
     #     table_name="papers_scopus",
     # )
     data = pd.read_csv(
-        "/mnt/c/Users/diego/Desktop/TCC/dashboard_ppgecc/data/scopus_professors.csv"
+        "dashboard_ppgeec/data/scopus_professors.csv"
     )
     # data = bigquery_select.select_table_from_bigquery(
     #     project_name="spheric-algebra-344319",
@@ -34,7 +34,7 @@ def loading_data():
     #     table_name="scopus_professors",
     # )
     papers = pd.read_csv(
-        "/mnt/c/Users/diego/Desktop/TCC/dashboard_ppgecc/data/papers_scopus.csv"
+        "dashboard_ppgeec/data/papers_scopus.csv"
     )
     return data, papers
 
