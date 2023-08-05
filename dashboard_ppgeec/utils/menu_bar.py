@@ -16,6 +16,8 @@ def menu():
         set_page("home")
     if st.sidebar.button(label="Clustering", key="cluster"):
         set_page("cluster")
+    if st.sidebar.button(label="Professores", key="professors"):
+        set_page("professors")
     if st.sidebar.button(label="Net analisys", key="graph"):
         set_page("graph")
     if st.sidebar.button(label="Time analysis", key="time"):

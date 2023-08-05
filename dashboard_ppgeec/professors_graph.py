@@ -45,11 +45,15 @@ st.set_page_config(
     layout="wide",
 )
 
-
-# print(st.session_state)
 data, papers = loading_data()
 menu()
-if st.session_state.page in ["home", None]:
+print(st.session_state)
+print(type(st.session_state))
+if "page" not in st.session_state:
+    st.session_state["page"] = "home"
+
+if st.session_state.page == "home":
+    print(type(st.session_state))
     show_principal(data=papers)
 if st.session_state.page == "professors":
     show_professors_page(data=papers)

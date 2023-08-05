@@ -5,6 +5,9 @@ from plotly.subplots import make_subplots
 from utils.config_colors import colors
 import streamlit as st
 
+# 1, 3, 9, 12, 13
+# https://www.mdpi.com/2073-8994/15/3/601
+
 
 def plot_timeSeries_scopus(data: pd.DataFrame, areas=None):
     data = data.loc[data["year"] != "['2013', '11', '18']", :]
@@ -67,8 +70,8 @@ def plot_timeSeries_scopus(data: pd.DataFrame, areas=None):
             cols=1,
             shared_xaxes=True,
             subplot_titles=[
-                field1 + " ao longo dos anos",
-                "citações ao longo dos anos",
+                "Professores ao longo dos anos",
+                "Citações ao longo dos anos",
             ],
         )
         prof = st.multiselect(
